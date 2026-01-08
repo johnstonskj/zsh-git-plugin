@@ -5,8 +5,8 @@
 #
 # Description:
 #
-#   Add one-line description here...
-#
+#   Zsh plugin to set the correct path for Git installed via Homebrew.
+
 # Public variables:
 #
 # * `GIT`; plugin-defined global associative array with the following keys:
