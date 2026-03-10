@@ -20,5 +20,5 @@ git_plugin_init() {
         @zplugins_add_to_path git "${git_path}/bin"
     else
         log_error "zsh-git: could not determine homebrew path for 'git'"
-    fió
+    fi
 }
