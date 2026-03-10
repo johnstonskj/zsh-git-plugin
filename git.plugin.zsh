@@ -1,8 +1,10 @@
 # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
 #
-# @name git
-# @brief Zsh plugin to set the correct path for Git installed via Homebrew.
-# @repository https://github.com/johnstonskj/zsh-git-plugin
+# @name: git
+# @brief: Set the path to the Git installed via Homebrew.
+# @repository: https://github.com/johnstonskj/zsh-git-plugin
+# @version: 0.1.1
+# @license: MIT AND Apache-2.0
 #
 
 ############################################################################
@@ -13,5 +15,10 @@
 git_plugin_init() {
     builtin emulate -L zsh
 
-    @zplugins_add_to_path git "$(homebrew_formula_prefix git)/bin"
+    local git_path="$(homebrew_formula_prefix git)"
+    if [[ -d "${git_path}" ]]; then
+        @zplugins_add_to_path git "${git_path}/bin"
+    else
+        log_error "zsh-git: could not determine homebrew path for 'git'"
+    fió
 }
