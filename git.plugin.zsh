@@ -1,8 +1,10 @@
 # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
 #
-# Plugin Name: git
-# Description: Zsh plugin to set the correct path for Git installed via Homebrew.
-# Repository: https://github.com/johnstonskj/zsh-git-plugin
+# @name: git
+# @brief: Set the path to the Git installed via Homebrew.
+# @repository: https://github.com/johnstonskj/zsh-git-plugin
+# @version: 0.1.1
+# @license: MIT AND Apache-2.0
 #
 #
 # Public variables:
