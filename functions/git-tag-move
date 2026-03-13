@@ -1,0 +1,22 @@
+# shellcheck shell=bash # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
+
+typeset tag_name="${1}"
+shift
+typeset message="${*}"
+
+if [[ -z "${tag_name}" || -z "${message}" ]]; then
+    echo "Usage: ${0:t} tag-name tag-message"
+    return 1
+fi
+
+if ! git-tag-delete "${tag_name}"; then
+    echo "Error: git-tag-delete command failed; errono=$?."
+    return 2
+fi
+
+if ! git tag -a "${tag_name}" -m "${message}"; then
+    echo "Error: git 'tag' add command failed; errono=$?."
+    return 2
+fi
+
+return 0

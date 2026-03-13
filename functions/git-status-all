@@ -1,0 +1,57 @@
+# shellcheck shell=bash disable=SC2155 # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
+
+if [[ "${1}" =~ (-v|--verbose) ]]; then
+    VERBOSE=1
+    shift
+else
+    VERBOSE=0
+fi
+
+typeset -a arguments=( "$@" )
+
+for repo in "${arguments[@]}"; do
+    repo="${repo:P}"
+    if [[ ${VERBOSE} -eq 1 ]]; then
+        echo "- Checking path: ${repo}"
+    fi
+    if [[ -d "${repo}" ]]; then
+        if ! pushd "${repo}" >/dev/null 2>&1; then
+            echo "Error pushd command failed; errno=$?"
+            return 2
+        fi
+
+        if [[ -e "${repo}/.git" ]]; then
+            if [[ ${VERBOSE} -eq 1 ]]; then
+                echo "  '- Appears to be a git repository."
+            fi
+            typeset git_status="$(git status --porcelain=v2)"
+            typeset -i errno=$?
+            if [[ ${errno} -eq 0 ]]; then
+                if [[ -n "${git_status}" ]]; then
+                    if [[ ${VERBOSE} -eq 1 ]]; then
+                        echo "  '- Has changes:"
+                    else
+                        echo "${repo:t}:"
+                    fi
+                    echo "${git_status}"
+                else
+                    if [[ ${VERBOSE} -eq 1 ]]; then
+                        echo "  '- Working tree is clean."
+                    fi
+                fi
+            else
+                echo "Error git 'status' command failed; errno=${errno}"
+                return 1
+            fi
+        fi
+
+        if ! popd >/dev/null 2>&1; then
+            echo "Error popd command failed; errno=$?"
+            return 2
+        fi
+    else
+        if [[ ${VERBOSE} -eq 1 ]]; then
+            echo "  '- Is not a git repository."
+        fi
+    fi
+done
