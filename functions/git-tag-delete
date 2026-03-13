@@ -1,20 +1,25 @@
 # shellcheck shell=bash # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
 
-typeset tag_name="${1}"
+builtin emulate -L zsh
 
+typeset -gi EC_SUCCESS
+typeset -gi EC_ARG_ERROR
+typeset -gi EC_EXEC_ERROR
+
+declare tag_name="${1}"
 if [[ -z "${tag_name}" ]]; then
     echo "Usage: ${0:t} tag-name"
-    return 1
+    return ${EC_ARG_ERROR}
 fi
 
 if ! git push --delete origin "${tag_name}"; then
     echo "Error: git 'push' delete command failed; errono=$?."
-    return 2
+    return ${EC_EXEC_ERROR}
 fi
 
 if ! git tag -d "${tag_name}"; then
     echo "Error: git 'tag' delete command failed; errono=$?."
-    return 2
+    return ${EC_EXEC_ERROR}
 fi
 
-return 0
+return ${EC_SUCCESS}

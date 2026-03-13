@@ -1,5 +1,11 @@
 # shellcheck shell=bash disable=SC2155 # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
 
+builtin emulate -L zsh
+
+typeset -gi EC_SUCCESS
+typeset -gi EC_EXEC_ERROR
+
+declare -i VERBOSE
 if [[ "${1}" =~ (-v|--verbose) ]]; then
     VERBOSE=1
     shift
@@ -7,51 +13,55 @@ else
     VERBOSE=0
 fi
 
-typeset -a arguments=( "$@" )
+declare -a arguments=( "$@" )
 
+[[ "${1}" =~ (#i)(true|yes|1) ]]
+echo "${VERBOSE},$?,args: ${arguments[*]}"
 for repo in "${arguments[@]}"; do
     repo="${repo:P}"
-    if [[ ${VERBOSE} -eq 1 ]]; then
+    if @boolean_is_true ${VERBOSE}; then
         echo "- Checking path: ${repo}"
     fi
     if [[ -d "${repo}" ]]; then
         if ! pushd "${repo}" >/dev/null 2>&1; then
             echo "Error pushd command failed; errno=$?"
-            return 2
+            return ${EC_EXEC_ERROR}
         fi
 
         if [[ -e "${repo}/.git" ]]; then
-            if [[ ${VERBOSE} -eq 1 ]]; then
+            if @boolean_is_true ${VERBOSE}; then
                 echo "  '- Appears to be a git repository."
             fi
             typeset git_status="$(git status --porcelain=v2)"
             typeset -i errno=$?
-            if [[ ${errno} -eq 0 ]]; then
+            if @is_success ${errno}; then
                 if [[ -n "${git_status}" ]]; then
-                    if [[ ${VERBOSE} -eq 1 ]]; then
+                    if @boolean_is_true ${VERBOSE}; then
                         echo "  '- Has changes:"
                     else
                         echo "${repo:t}:"
                     fi
                     echo "${git_status}"
                 else
-                    if [[ ${VERBOSE} -eq 1 ]]; then
+                    if @boolean_is_true ${VERBOSE}; then
                         echo "  '- Working tree is clean."
                     fi
                 fi
             else
                 echo "Error git 'status' command failed; errno=${errno}"
-                return 1
+                return ${EC_EXEC_ERROR}
             fi
         fi
 
         if ! popd >/dev/null 2>&1; then
             echo "Error popd command failed; errno=$?"
-            return 2
+            return ${EC_EXEC_ERROR}
         fi
     else
-        if [[ ${VERBOSE} -eq 1 ]]; then
+        if @boolean_is_true ${VERBOSE}; then
             echo "  '- Is not a git repository."
         fi
     fi
 done
+
+return ${EC_SUCCESS}

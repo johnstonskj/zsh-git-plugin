@@ -1,7 +1,12 @@
 # shellcheck shell=bash # -*- mode: sh; eval: (sh-set-shell "zsh") -*-
 
-typeset new_name
-typeset old_name
+builtin emulate -L zsh
+
+typeset -gi EC_SUCCESS
+typeset -gi EC_EXEC_ERROR
+
+declare new_name
+declare old_name
 
 if [[ "${1}" == "" ]] ; then
     new_name=main
@@ -17,24 +22,24 @@ fi
 
 if ! git branch -m "${old_name}" "${new_name}"; then
     echo "Error: git 'branch' command failed; errono=$?."
-    return 2
+    return ${EC_EXEC_ERROR}
 fi
 
 if ! git fetch origin; then
     echo "Error: git 'fetch' command failed; errono=$?."
-    return 2
+    return ${EC_EXEC_ERROR}
 fi
 
 
 if ! git branch -u origin/"${new_name}" "${new_name}"; then
     echo "Error: git 'branch' command failed; errono=$?."
-    return 2
+    return ${EC_EXEC_ERROR}
 fi
 
 
 if ! git remote set-head origin -a; then
     echo "Error: git 'remote set-head' command failed; errono=$?."
-    return 2
+    return ${EC_EXEC_ERROR}
 fi
 
-return 0
+return ${EC_SUCCESS}
